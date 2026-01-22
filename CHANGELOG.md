@@ -1,3 +1,9 @@
+## 0.5.3
+
+- add `flowControl` property to `Terminal` for enabling/disabling software flow control (XON/XOFF)
+- allows detection of Ctrl-S and Ctrl-Q as input events
+- add save_demo example showing Ctrl-S detection
+
 ## 0.5.2+1
 
 - add tap_game example - click colorful targets before they disappear
