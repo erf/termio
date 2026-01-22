@@ -15,6 +15,28 @@ abstract class TerminalBase {
   /// When enabled, input is unbuffered and echo is disabled.
   set rawMode(bool value);
 
+  /// Whether software flow control (XON/XOFF) is enabled.
+  ///
+  /// On most Unix-like systems, this is enabled by default, which means
+  /// Ctrl-S (XOFF) and Ctrl-Q (XON) may be intercepted by the terminal
+  /// driver and never reach your application.
+  ///
+  /// The base implementation returns `true` and the setter is a no-op so
+  /// custom terminal implementations are not required to implement this.
+  bool get flowControl => true;
+
+  /// Enable or disable software flow control (XON/XOFF).
+  ///
+  /// When enabled (default), Ctrl-S and Ctrl-Q are intercepted by the
+  /// terminal for flow control and won't be received by the application.
+  ///
+  /// When disabled, Ctrl-S (0x13) and Ctrl-Q (0x11) will be received
+  /// as normal input events, allowing you to detect them in your app.
+  ///
+  /// Flow control is a legacy feature from serial terminals and is
+  /// rarely needed on modern systems. Disabling it is safe.
+  set flowControl(bool value) {}
+
   /// Get width of terminal in columns.
   int get width;
 
@@ -46,6 +68,7 @@ abstract class TerminalBase {
 /// and resize events.
 class Terminal extends TerminalBase {
   bool _rawMode = false;
+  bool _flowControl = true;
   final _parser = InputParser();
 
   @override
@@ -56,6 +79,29 @@ class Terminal extends TerminalBase {
     _rawMode = value;
     stdin.echoMode = !value;
     stdin.lineMode = !value;
+  }
+
+  @override
+  bool get flowControl => _flowControl;
+
+  @override
+  set flowControl(bool value) {
+    if (_flowControl == value) return;
+    _flowControl = value;
+
+    // Best-effort: apply terminal settings where supported.
+    // - Windows: no stty/termios
+    // - Non-interactive stdin (no TTY): nothing to configure
+    if (Platform.isWindows || !stdin.hasTerminal) return;
+
+    // stty toggles IXON/IXOFF (software flow control).
+    final args = <String>[value ? 'ixon' : '-ixon', value ? 'ixoff' : '-ixoff'];
+
+    try {
+      Process.runSync('stty', args);
+    } catch (_) {
+      // Ignore: stty might be unavailable or stdin might not be configurable.
+    }
   }
 
   @override

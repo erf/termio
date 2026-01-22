@@ -20,12 +20,19 @@ class TestTerminal extends TerminalBase {
   final int height;
 
   bool _rawMode = false;
+  bool _flowControl = true;
 
   @override
   bool get rawMode => _rawMode;
 
   @override
   set rawMode(bool value) => _rawMode = value;
+
+  @override
+  bool get flowControl => _flowControl;
+
+  @override
+  set flowControl(bool value) => _flowControl = value;
 
   final _inputController = StreamController<List<int>>.broadcast();
   final _resizeController = StreamController<ProcessSignal>.broadcast();
