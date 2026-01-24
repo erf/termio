@@ -95,10 +95,12 @@ class Terminal extends TerminalBase {
     if (Platform.isWindows || !stdin.hasTerminal) return;
 
     // stty toggles IXON/IXOFF (software flow control).
-    final args = <String>[value ? 'ixon' : '-ixon', value ? 'ixoff' : '-ixoff'];
+    // We must use the shell to run stty so it affects the current terminal,
+    // since Process.runSync spawns a subprocess with different stdin.
+    final flag = value ? 'ixon ixoff' : '-ixon -ixoff';
 
     try {
-      Process.runSync('stty', args);
+      Process.runSync('sh', ['-c', 'stty $flag < /dev/tty']);
     } catch (_) {
       // Ignore: stty might be unavailable or stdin might not be configurable.
     }
