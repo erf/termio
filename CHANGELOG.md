@@ -1,3 +1,7 @@
+## 0.5.3+1
+
+- fix flowControl stty command by using /dev/tty redirect
+
 ## 0.5.3
 
 - add `flowControl` property to `Terminal` for enabling/disabling software flow control (XON/XOFF)
