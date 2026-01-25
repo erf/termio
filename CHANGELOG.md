@@ -1,3 +1,9 @@
+
+## 0.5.4
+
+- add `Ansi.bracketedPasteMode(bool enabled)` for enabling/disabling bracketed paste mode
+- includes unit test for bracketed paste mode
+
 ## 0.5.3+1
 
 - fix flowControl stty command by using /dev/tty redirect
