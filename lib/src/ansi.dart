@@ -150,6 +150,16 @@ class Ansi {
   static String graphemeCluster(bool enabled) =>
       enabled ? '$e[?2027h' : '$e[?2027l';
 
+  /// Enable or disable bracketed paste mode.
+  ///
+  /// When enabled, the terminal wraps pasted text with escape sequences:
+  /// - `\x1b[200~` at the start of pasted content
+  /// - `\x1b[201~` at the end of pasted content
+  ///
+  /// This allows applications to distinguish pasted text from typed input.
+  static String bracketedPasteMode(bool enabled) =>
+      enabled ? '$e[?2004h' : '$e[?2004l';
+
   // ─────────────────────────────────────────────────────────────────────────
   // Mouse tracking
   // ─────────────────────────────────────────────────────────────────────────

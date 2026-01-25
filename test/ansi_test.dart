@@ -89,6 +89,11 @@ void main() {
       expect(Ansi.altScroll(false), '\x1b[?1007l');
     });
 
+    test('bracketed paste mode', () {
+      expect(Ansi.bracketedPasteMode(true), '\x1b[?2004h');
+      expect(Ansi.bracketedPasteMode(false), '\x1b[?2004l');
+    });
+
     test('window title', () {
       expect(Ansi.setTitle('test'), '\x1b]2;test\x07');
     });
