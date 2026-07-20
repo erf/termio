@@ -13,6 +13,9 @@ topics:
 environment:
   sdk: ^3.10.0
 
+dependencies:
+  characters: ^1.4.0
+
 dev_dependencies:
   lints: ^6.0.0
   test: ^1.29.0

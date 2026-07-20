@@ -56,7 +56,7 @@ void main() {
 
 - **Ansi** - Escape codes for cursor, colors, text styles, and terminal modes
 - **Terminal** - Raw mode, terminal size, input stream, resize events
-- **InputParser** - Parse raw terminal input into structured `KeyInputEvent` and `MouseInputEvent`
+- **InputParser** - Parse raw terminal input into structured `KeyInputEvent` and `MouseInputEvent` (multi-byte characters and emoji are delivered as single grapheme-cluster events)
 - **Keys** - Constants for keyboard input (arrows, function keys, ctrl combinations, Shift+Tab, modified arrows)
 - **MouseEvent** - Parse mouse clicks, drags, and scroll wheel events
 - **Color** - 16 standard colors, 256-color palette, and 24-bit RGB

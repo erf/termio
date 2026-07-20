@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:characters/characters.dart';
 import 'package:termio/termio.dart';
 
 /// Parses raw terminal input into structured InputEvent objects.
@@ -48,8 +49,8 @@ class InputParser {
       return [KeyInputEvent(raw: content, key: 'escape')];
     }
 
-    // Otherwise, process whatever we have character by character
-    return content.split('').map((c) => _charToEvent(c)).toList();
+    // Otherwise, process whatever we have grapheme by grapheme
+    return content.characters.map(_graphemeToEvent).toList();
   }
 
   /// Extract all complete events from the buffer.
@@ -86,9 +87,15 @@ class InputParser {
         continue;
       }
 
-      // Regular character
-      events.add(_charToEvent(str[pos]));
-      pos++;
+      // Regular character: consume a full grapheme cluster (handles
+      // surrogate pairs, combining marks, emoji sequences).
+      final range = CharacterRange.at(str, pos);
+      if (range.moveNext()) {
+        events.add(_graphemeToEvent(range.current));
+        pos += range.current.length;
+      } else {
+        pos++;
+      }
     }
 
     return events;
@@ -195,8 +202,11 @@ class InputParser {
     return KeyInputEvent(raw: seq, key: key);
   }
 
-  /// Convert a single character to a KeyInputEvent.
-  InputEvent _charToEvent(String char) {
+  /// Convert a single grapheme cluster to a KeyInputEvent.
+  ///
+  /// Control characters are always single code units; multi-unit clusters
+  /// (emoji, combining sequences) fall through to [KeyInputEvent.char].
+  InputEvent _graphemeToEvent(String char) {
     // Check for control characters
     final code = char.codeUnitAt(0);
 

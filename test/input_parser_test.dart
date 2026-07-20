@@ -397,15 +397,11 @@ void main() {
         expect((events[3] as KeyInputEvent).key, 'é');
       });
 
-      test('parses emoji (surrogate pair)', () {
-        // Emoji like 👍 are represented as surrogate pairs in Dart strings
-        // They appear as 2 UTF-16 code units
+      test('parses emoji (surrogate pair) as single event', () {
+        // Emoji are surrogate pairs in UTF-16, but must arrive as ONE event
         final events = parser.parseString('👍');
-        expect(events.length, 2); // Surrogate pair = 2 code units
-        // Both code units together form the emoji
-        final combined =
-            (events[0] as KeyInputEvent).key + (events[1] as KeyInputEvent).key;
-        expect(combined, '👍');
+        expect(events.length, 1);
+        expect((events[0] as KeyInputEvent).key, '👍');
       });
 
       test('parses CJK characters', () {
@@ -422,14 +418,42 @@ void main() {
         expect((events[0] as KeyInputEvent).key, 'é');
       });
 
-      test('parses UTF-8 bytes for emoji', () {
+      test('parses UTF-8 bytes for emoji as single event', () {
         // '👍' in UTF-8 is [0xF0, 0x9F, 0x91, 0x8D]
-        // Decodes to surrogate pair in Dart string
         final events = parser.parse([0xF0, 0x9F, 0x91, 0x8D]);
-        expect(events.length, 2); // Surrogate pair
-        final combined =
-            (events[0] as KeyInputEvent).key + (events[1] as KeyInputEvent).key;
-        expect(combined, '👍');
+        expect(events.length, 1);
+        expect((events[0] as KeyInputEvent).key, '👍');
+      });
+
+      test('parses combining character sequence as single event', () {
+        // 'e' + combining acute accent (U+0301) = one grapheme cluster
+        final events = parser.parseString('e\u0301');
+        expect(events.length, 1);
+        expect((events[0] as KeyInputEvent).key, 'e\u0301');
+      });
+
+      test('parses multi-codepoint emoji sequence as single event', () {
+        // Family emoji: ZWJ sequence of multiple code points
+        const family = '👨‍👩‍👧';
+        final events = parser.parseString(family);
+        expect(events.length, 1);
+        expect((events[0] as KeyInputEvent).key, family);
+      });
+
+      test('flush emits lone buffered escape as escape key', () {
+        // An incomplete CSI sequence is buffered; flushing returns its chars
+        parser.parseString('\x1b[');
+        final events = parser.flush();
+        expect(events.length, 2);
+        expect((events[0] as KeyInputEvent).key, 'escape');
+        expect((events[1] as KeyInputEvent).key, '[');
+      });
+
+      test('lone ESC is emitted immediately, not buffered', () {
+        final events = parser.parseString('\x1b');
+        expect(events.length, 1);
+        expect((events[0] as KeyInputEvent).key, 'escape');
+        expect(parser.hasBufferedInput, isFalse);
       });
 
       test('parses mixed ASCII and unicode', () {
