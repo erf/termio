@@ -1,5 +1,5 @@
 
-## Unreleased
+## 0.6.0
 
 - `InputParser` now emits multi-byte characters as single `KeyInputEvent`s: surrogate pairs (emoji), combining character sequences, and ZWJ emoji sequences arrive as one grapheme cluster instead of being split into invalid lone-surrogate events
 - add `characters` package dependency for grapheme cluster segmentation
