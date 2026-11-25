@@ -29,7 +29,22 @@ class Ansi {
   static String cursorVisible(bool visible) => visible ? '$e[?25h' : '$e[?25l';
 
   /// Clear screen and move cursor home.
+  ///
+  /// For full-screen redraws, prefer overwriting lines in place with
+  /// [eraseLine] inside [synchronizedOutput] to avoid flashing.
   static String clearScreen() => '$e[H$e[J';
+
+  /// Move cursor to the top-left corner (home).
+  static String cursorHome() => '$e[H';
+
+  /// Erase the entire current line.
+  ///
+  /// The line is filled with the current background color. The cursor
+  /// position is unchanged.
+  static String eraseLine() => '$e[2K';
+
+  /// Erase from the cursor to the end of the screen.
+  static String eraseBelow() => '$e[J';
 
   /// Save cursor position.
   static String cursorSave() => '$e[s';
@@ -159,6 +174,21 @@ class Ansi {
   /// This allows applications to distinguish pasted text from typed input.
   static String bracketedPasteMode(bool enabled) =>
       enabled ? '$e[?2004h' : '$e[?2004l';
+
+  /// Begin or end a synchronized update (mode 2026).
+  ///
+  /// While enabled, the terminal buffers output and presents it atomically
+  /// when disabled again, so a redraw never shows a half-drawn frame (no
+  /// flashing or cursor jumping). Terminals without support ignore it.
+  ///
+  /// Example:
+  /// ```dart
+  /// terminal.write(Ansi.synchronizedOutput(true));
+  /// // ... draw the frame ...
+  /// terminal.write(Ansi.synchronizedOutput(false));
+  /// ```
+  static String synchronizedOutput(bool enabled) =>
+      enabled ? '$e[?2026h' : '$e[?2026l';
 
   // ─────────────────────────────────────────────────────────────────────────
   // Mouse tracking

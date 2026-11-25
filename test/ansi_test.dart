@@ -20,6 +20,20 @@ void main() {
       expect(Ansi.clearScreen(), '\x1b[H\x1b[J');
     });
 
+    test('cursorHome', () {
+      expect(Ansi.cursorHome(), '\x1b[H');
+    });
+
+    test('eraseLine and eraseBelow', () {
+      expect(Ansi.eraseLine(), '\x1b[2K');
+      expect(Ansi.eraseBelow(), '\x1b[J');
+    });
+
+    test('synchronizedOutput', () {
+      expect(Ansi.synchronizedOutput(true), '\x1b[?2026h');
+      expect(Ansi.synchronizedOutput(false), '\x1b[?2026l');
+    });
+
     test('fgIndex', () {
       expect(Ansi.fgIndex(1), '\x1b[38;5;1m');
     });
