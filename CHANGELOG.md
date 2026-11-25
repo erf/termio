@@ -1,3 +1,8 @@
+## 0.6.1
+
+- add `Ansi.synchronizedOutput(bool enabled)` (mode 2026) for flicker-free redraws
+- add `Ansi.cursorHome()`, `Ansi.eraseLine()` and `Ansi.eraseBelow()`
+
 ## 0.6.0
 
 - `InputParser` now emits multi-byte characters as single `KeyInputEvent`s: surrogate pairs (emoji), combining character sequences, and ZWJ emoji sequences arrive as one grapheme cluster instead of being split into invalid lone-surrogate events
